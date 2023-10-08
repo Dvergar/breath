@@ -56,4 +56,8 @@ class Server implements IWebSocket {
       channel.sink.add(buffer.asInt8List());
     }
   }
+
+  void sendTo(WebSocketChannel channel, ByteBuffer buffer) => channel.sink.add(
+        buffer.asInt8List(),
+      );
 }

@@ -17,11 +17,10 @@ class BreathOxygenServer extends BreathOxygenBase {
     instance = this;
     await server.init();
 
+    // On new connection, sends the world to client
     server.onOpen.listen((channel) {
       print('Breath: player connected');
-      for (final entry in _entities.entries) {
-        server.send(messager.createEntityToBytes(entry.key));
-      }
+      sendWorldTo(channel);
     });
   }
 
@@ -38,7 +37,9 @@ class BreathOxygenServer extends BreathOxygenBase {
   }
 
   void sendWorldTo(WebSocketChannel channel) {
-    // TODO
+    for (final entry in _entities.entries) {
+      server.sendTo(channel, (messager.createEntityToBytes(entry.key)));
+    }
   }
 }
 
