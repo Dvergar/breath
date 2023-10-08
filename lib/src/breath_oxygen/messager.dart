@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 enum MessageType {
   createEntity,
+  addComponent,
 }
 
 class Messager {
@@ -22,15 +23,29 @@ class Messager {
     return byteBuffer.buffer;
   }
 
+  ByteBuffer addComponentToBytes(int entityId) {
+    clear();
+
+    final writer = ByteBufferWriter(byteBuffer);
+
+    writer.writeInt8(MessageType.addComponent.index);
+    writer.writeInt32(entityId);
+
+    return byteBuffer.buffer;
+  }
+
   fromBytes({
     required ByteBuffer buffer,
     required Function onCreateEntity,
   }) {
-    final reader = ByteBufferReader(byteBuffer);
-    final messageType = reader.readInt8();
+    final reader = ByteBufferReader(buffer.asByteData());
 
-    if (messageType == MessageType.createEntity.index) {
-      onCreateEntity();
+    while (reader.hasBytesToRead) {
+      final messageType = reader.readInt8();
+
+      if (messageType == MessageType.createEntity.index) {
+        onCreateEntity();
+      }
     }
   }
 }
@@ -55,33 +70,35 @@ class ByteBufferWriter {
     _byteData.setInt32(_offset, value);
     _offset += 4;
   }
-
-  int get position => _offset;
 }
 
 class ByteBufferReader {
   final ByteData _byteData;
-  int _offset = 0;
+  int _bytesOffset = 0;
+  int _elementOffset = 0;
 
   ByteBufferReader(ByteData byteData) : _byteData = byteData;
 
   int readInt8() {
-    final value = _byteData.getInt8(_offset);
-    _offset += 1;
+    final value = _byteData.getInt8(_bytesOffset);
+    _bytesOffset += 1;
+    _elementOffset += 1;
     return value;
   }
 
   int readInt16() {
-    final value = _byteData.getInt16(_offset);
-    _offset += 2;
+    final value = _byteData.getInt16(_bytesOffset);
+    _bytesOffset += 2;
+    _elementOffset += 1;
     return value;
   }
 
   int readInt32() {
-    final value = _byteData.getInt32(_offset);
-    _offset += 4;
+    final value = _byteData.getInt32(_bytesOffset);
+    _bytesOffset += 4;
+    _elementOffset += 1;
     return value;
   }
 
-  int get position => _offset;
+  bool get hasBytesToRead => _elementOffset < _byteData.elementSizeInBytes;
 }

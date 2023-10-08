@@ -26,6 +26,10 @@ class BreathOxygenServer extends BreathOxygenBase {
 
   void addComponent(int entityId, Component component) {
     _components[entityId] = component;
+
+    final bytes = messager.addComponentToBytes(entityId);
+
+    server.send(bytes);
   }
 
   void createEntity(Entity entity) {
