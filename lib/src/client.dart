@@ -1,7 +1,5 @@
-// ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
 
-// TODO CREATE nettwork ecs
 class Client {
   final _socket = WebSocket('ws://localhost:8080');
   var connected = false;
