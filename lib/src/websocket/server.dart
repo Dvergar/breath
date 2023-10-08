@@ -1,16 +1,42 @@
+import 'dart:async';
+
+import 'package:breath/src/websocket/i_websocket.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-class Server {
-  final handler = webSocketHandler((WebSocketChannel webSocket) {
-    webSocket.stream.listen((event) {
-      print(event);
-    });
-  });
+class Server implements IWebSocket {
+  final _onOpenController = StreamController<WebSocketChannel>.broadcast();
+  final _onMessageController =
+      StreamController<(WebSocketChannel, dynamic)>.broadcast();
 
+  @override
+  Stream<WebSocketChannel> get onOpen => _onOpenController.stream;
+
+  @override
+  Stream<(WebSocketChannel, dynamic)> get onMessage =>
+      _onMessageController.stream;
+
+  final _channels = <WebSocketChannel>[];
+
+  @override
   init() async {
+    final handler = webSocketHandler((WebSocketChannel webSocket) {
+      print('New connection');
+
+      _channels.add(webSocket);
+
+      webSocket.stream.listen(
+        (message) => _onMessageController.add((webSocket, message)),
+        onDone: () {
+          print('Disconnection');
+
+          _channels.remove(webSocket);
+        },
+      );
+    });
+
     // Create a shelf pipeline.
     final pipeline =
         const Pipeline().addMiddleware(logRequests()).addHandler(handler);
@@ -20,5 +46,12 @@ class Server {
 
     print(
         'WebSocket server is listening on ${server.address.host}:${server.port}');
+  }
+
+  @override
+  void send(String message) {
+    for (var channel in _channels) {
+      channel.sink.add(message);
+    }
   }
 }

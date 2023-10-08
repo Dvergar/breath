@@ -1,13 +1,18 @@
 import 'dart:html';
 
-class Client {
+import 'package:breath/src/websocket/i_websocket.dart';
+
+class Client implements IWebSocket {
   final _socket = WebSocket('ws://localhost:8080');
 
+  @override
   Stream<MessageEvent> get onMessage =>
       _socket.onMessage.map((event) => event.data);
+  @override
   Stream<Event> get onOpen => _socket.onOpen;
 
-  Client() {
+  @override
+  void init() async {
     _socket.onOpen.listen(
       (event) {
         // ignore: avoid_print
@@ -28,6 +33,7 @@ class Client {
     });
   }
 
+  @override
   void send(String message) {
     _socket.send(message);
   }
