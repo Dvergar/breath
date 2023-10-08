@@ -1,3 +1,3 @@
-A set of tools for network game development.
+A set of tools for network game development in dart/flutter.
 
 Glueing websockets, flame & oxygen.
