@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:breath/src/websocket/i_websocket.dart';
 import 'package:shelf/shelf.dart';
@@ -24,6 +25,7 @@ class Server implements IWebSocket {
   init() async {
     final handler = webSocketHandler((WebSocketChannel webSocket) {
       print('New connection');
+      _onOpenController.add(webSocket);
 
       _channels.add(webSocket);
 
@@ -49,9 +51,9 @@ class Server implements IWebSocket {
   }
 
   @override
-  void send(String message) {
+  void send(ByteBuffer buffer) {
     for (var channel in _channels) {
-      channel.sink.add(message);
+      channel.sink.add(buffer.asInt8List());
     }
   }
 }

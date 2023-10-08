@@ -1,13 +1,15 @@
 import 'dart:html';
+import 'dart:typed_data';
 
 import 'package:breath/src/websocket/i_websocket.dart';
+import 'package:web_socket_channel/html.dart';
 
 class Client implements IWebSocket {
-  final _socket = WebSocket('ws://localhost:8080');
+  final _socket = WebSocket('ws://localhost:8080')
+    ..binaryType = BinaryType.list.value;
 
   @override
-  Stream<MessageEvent> get onMessage =>
-      _socket.onMessage.map((event) => event.data);
+  Stream get onMessage => _socket.onMessage.map((event) => event.data);
   @override
   Stream<Event> get onOpen => _socket.onOpen;
 
@@ -23,7 +25,7 @@ class Client implements IWebSocket {
     // Listen for messages from the server.
     _socket.onMessage.listen((message) {
       // ignore: avoid_print
-      print('Received from server: $message');
+      print('Debug: Received from server: $message');
     });
 
     // Close the WebSocket connection when done.
@@ -34,7 +36,7 @@ class Client implements IWebSocket {
   }
 
   @override
-  void send(String message) {
-    _socket.send(message);
+  void send(ByteBuffer buffer) {
+    _socket.send(buffer);
   }
 }
