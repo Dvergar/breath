@@ -17,6 +17,9 @@ class BreathOxygenClient extends BreathOxygenBase {
         onCreateEntity: () {
           print('Breath: create entity');
         },
+        onAddComponent: () {
+          print('Breath: add component');
+        },
       );
     });
   }

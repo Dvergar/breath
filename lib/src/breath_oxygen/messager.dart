@@ -37,6 +37,7 @@ class Messager {
   fromBytes({
     required ByteBuffer buffer,
     required Function onCreateEntity,
+    required Function onAddComponent,
   }) {
     final reader = ByteBufferReader(buffer.asByteData());
 
@@ -45,6 +46,10 @@ class Messager {
 
       if (messageType == MessageType.createEntity.index) {
         onCreateEntity();
+      }
+
+      if (messageType == MessageType.addComponent.index) {
+        onAddComponent();
       }
     }
   }

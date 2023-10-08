@@ -44,6 +44,10 @@ class BreathOxygenServer extends BreathOxygenBase {
     for (final entry in _entities.entries) {
       server.sendTo(channel, (messager.createEntityToBytes(entry.key)));
     }
+
+    for (final entry in _components.entries) {
+      server.sendTo(channel, (messager.addComponentToBytes(entry.key)));
+    }
   }
 }
 
