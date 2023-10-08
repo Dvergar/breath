@@ -7,7 +7,6 @@ class Client {
   Stream<Object> get onMessage => _socket.onMessage.map((event) => event.data);
 
   Client() {
-    print('hello');
     _socket.onOpen.listen(
       (event) {
         // ignore: avoid_print
