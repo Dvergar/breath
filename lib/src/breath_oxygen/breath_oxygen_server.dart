@@ -7,8 +7,6 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 // Todo: add pump
 /// Adds network functionality to oxygen.
 class BreathOxygenServer extends BreathOxygenBase {
-  final Map<int, Component> _components = {};
-  final Map<int, Entity> _entities = {};
   final server = Server();
   static late final BreathOxygenServer instance;
 
@@ -24,16 +22,16 @@ class BreathOxygenServer extends BreathOxygenBase {
     });
   }
 
-  void addComponent(int entityId, Component component) {
-    _components[entityId] = component;
+  void addComponent(int entityId, SerializableComponent component) {
+    components[entityId] = component;
 
-    final bytes = messager.addComponentToBytes(entityId);
+    final bytes = messager.addComponentToBytes(entityId, component);
 
     server.send(bytes);
   }
 
   void createEntity(Entity entity) {
-    _entities[entity.id!] = entity;
+    entities[entity.id!] = entity;
 
     final bytes = messager.createEntityToBytes(entity.id!);
 
@@ -41,18 +39,24 @@ class BreathOxygenServer extends BreathOxygenBase {
   }
 
   void sendWorldTo(WebSocketChannel channel) {
-    for (final entry in _entities.entries) {
-      server.sendTo(channel, (messager.createEntityToBytes(entry.key)));
+    for (final entry in entities.entries) {
+      server.sendTo(
+        channel,
+        messager.createEntityToBytes(entry.key),
+      );
     }
 
-    for (final entry in _components.entries) {
-      server.sendTo(channel, (messager.addComponentToBytes(entry.key)));
+    for (final entry in components.entries) {
+      server.sendTo(
+        channel,
+        messager.addComponentToBytes(entry.key, entry.value),
+      );
     }
   }
 }
 
 extension NetworkEntity on Entity {
-  netAdd<T extends Component<V>, V>([V? data]) {
+  netAdd<T extends SerializableComponent<V>, V>([V? data]) {
     add<T, V>(data);
     final component = get<T>()!;
     BreathOxygenServer.instance.addComponent(id!, component);

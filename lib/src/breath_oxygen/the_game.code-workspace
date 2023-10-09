@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../../../../../../flutter/the_game"
+		},
+		{
+			"path": "../../.."
+		}
+	],
+	"settings": {
+		"window.title": "CASTLE"
+	}
+}

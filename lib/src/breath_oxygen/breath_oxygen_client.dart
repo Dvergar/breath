@@ -16,9 +16,22 @@ class BreathOxygenClient extends BreathOxygenBase {
         buffer: message,
         onCreateEntity: () {
           print('Breath: create entity');
+
+          final entity = world.createEntity();
+          entities[entity.id!] = entity;
         },
-        onAddComponent: () {
+        onAddComponent: (
+          int entityId,
+          int componentTypeId,
+          ByteBufferReader buffer,
+        ) {
           print('Breath: add component');
+
+          final entity = entities[entityId]!;
+          final builder = mappings.getValue(componentTypeId)(entity);
+          final component = builder(entity);
+
+          component.fromBytes(buffer);
         },
       );
     });

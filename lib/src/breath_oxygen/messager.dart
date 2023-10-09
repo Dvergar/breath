@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:oxygen/oxygen.dart';
+
 enum MessageType {
   createEntity,
   addComponent,
@@ -23,21 +25,30 @@ class Messager {
     return byteBuffer.buffer;
   }
 
-  ByteBuffer addComponentToBytes(int entityId) {
+  ByteBuffer addComponentToBytes(
+    int entityId,
+    SerializableComponent component,
+  ) {
     clear();
 
     final writer = ByteBufferWriter(byteBuffer);
 
     writer.writeInt8(MessageType.addComponent.index);
     writer.writeInt32(entityId);
+    writer.writeInt32(component.uid);
+    component.toBytes(writer);
 
     return byteBuffer.buffer;
   }
 
-  fromBytes({
+  void fromBytes({
     required ByteBuffer buffer,
     required Function onCreateEntity,
-    required Function onAddComponent,
+    required Function(
+      int entityId,
+      int componentTypeId,
+      ByteBufferReader buffer,
+    ) onAddComponent,
   }) {
     final reader = ByteBufferReader(buffer.asByteData());
 
@@ -49,7 +60,9 @@ class Messager {
       }
 
       if (messageType == MessageType.addComponent.index) {
-        onAddComponent();
+        final entityId = reader.readInt32();
+        final componentTypeId = reader.readInt32();
+        onAddComponent(entityId, componentTypeId, reader);
       }
     }
   }
@@ -107,3 +120,46 @@ class ByteBufferReader {
 
   bool get hasBytesToRead => _elementOffset < _byteData.elementSizeInBytes;
 }
+
+abstract class SerializableComponent<T> extends Component<T> {
+  int get uid;
+
+  void addBuilder(Entity entity);
+  void fromBytes(ByteBufferReader buffer);
+  void toBytes(ByteBufferWriter buffer);
+}
+
+class TwoWayMap<K, V> {
+  final Map<K, V> keyToValue = {};
+  final Map<V, K> valueToKey = {};
+
+  void add(K key, V value) {
+    keyToValue[key] = value;
+    valueToKey[value] = key;
+  }
+
+  K getKey(V value) {
+    return valueToKey[value]!;
+  }
+
+  V getValue(K key) {
+    return keyToValue[key]!;
+  }
+}
+
+typedef NetBuilder = SerializableComponent Function(Entity);
+
+extension IdWorld on World {
+  // Todo: find a way to handle ids easily (without using codegen)
+  void netRegisterComponent<T extends Component<V>, V>(
+    ComponentBuilder<T> builder,
+    int id,
+    NetBuilder Function(Entity) netBuilder,
+  ) {
+    registerComponent(builder);
+
+    mappings.add(id, netBuilder);
+  }
+}
+
+final mappings = TwoWayMap<int, NetBuilder Function(Entity)>();
