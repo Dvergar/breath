@@ -36,7 +36,7 @@ class Messager {
 
     writer.writeInt8(MessageType.addComponent.index);
     writer.writeInt32(entityId);
-    writer.writeInt32(component.uid);
+    writer.writeInt32(component.typeId);
     component.toBytes(writer);
 
     return byteBuffer.buffer;
@@ -50,7 +50,7 @@ class Messager {
 
     writer.writeInt8(MessageType.updateComponent.index);
     writer.writeInt32(entityId);
-    writer.writeInt32(component.uid);
+    writer.writeInt32(component.typeId);
     component.toBytes(writer);
 
     return byteBuffer.buffer;
@@ -152,9 +152,8 @@ class ByteBufferReader {
 }
 
 abstract class SerializableComponent<T> extends Component<T> {
-  int get uid;
-
-  void addBuilder(Entity entity);
+  /// Component type id which should match [NetBuilder.typeId].
+  late final int typeId;
   void fromBytes(ByteBufferReader buffer);
   void toBytes(ByteBufferWriter buffer);
 }
@@ -177,30 +176,29 @@ class TwoWayMap<K, V> {
   }
 }
 
-typedef NetBuilder = SerializableComponent Function(Entity);
-
 extension IdWorld on World {
   // Todo: find a way to handle ids easily (without using codegen)
   void netRegisterComponent<T extends Component<V>, V>(
     ComponentBuilder<T> builder,
-    int id,
-    // NetBuilder Function(Entity) netBuilder,
-    NetBuilder2 netBuilder,
+    NetBuilder netBuilder,
   ) {
     registerComponent(builder);
 
-    mappings.add(id, netBuilder);
+    mappings.add(netBuilder.typeId, netBuilder);
   }
 }
 
 // final mappings = TwoWayMap<int, NetBuilder Function(Entity)>();
-final mappings = TwoWayMap<int, NetBuilder2>();
+final mappings = TwoWayMap<int, NetBuilder>();
 
-class NetBuilder2<T> {
+class NetBuilder<T> {
+  /// Component type id which should match [SerializableComponent.typeId].
+  final int typeId;
   final void Function(Entity) add;
   final T Function(Entity) get;
 
-  const NetBuilder2({
+  const NetBuilder({
+    required this.typeId,
     required this.add,
     required this.get,
   });
