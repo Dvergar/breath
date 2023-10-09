@@ -5,6 +5,7 @@ import 'package:oxygen/oxygen.dart';
 enum MessageType {
   createEntity,
   addComponent,
+  updateComponent,
 }
 
 class Messager {
@@ -41,14 +42,25 @@ class Messager {
     return byteBuffer.buffer;
   }
 
+  ByteBuffer updateComponentToBytes(
+      int entityId, SerializableComponent component) {
+    clear();
+
+    final writer = ByteBufferWriter(byteBuffer);
+
+    writer.writeInt8(MessageType.updateComponent.index);
+    writer.writeInt32(entityId);
+    writer.writeInt32(component.uid);
+    component.toBytes(writer);
+
+    return byteBuffer.buffer;
+  }
+
   void fromBytes({
     required ByteBuffer buffer,
     required Function onCreateEntity,
-    required Function(
-      int entityId,
-      int componentTypeId,
-      ByteBufferReader buffer,
-    ) onAddComponent,
+    required OnAddComponentCallback onAddComponent,
+    required OnUpdateComponentCallback onUpdateComponent,
   }) {
     final reader = ByteBufferReader(buffer.asByteData());
 
@@ -64,9 +76,27 @@ class Messager {
         final componentTypeId = reader.readInt32();
         onAddComponent(entityId, componentTypeId, reader);
       }
+
+      if (messageType == MessageType.updateComponent.index) {
+        final entityId = reader.readInt32();
+        final componentTypeId = reader.readInt32();
+        onUpdateComponent(entityId, componentTypeId, reader);
+      }
     }
   }
 }
+
+typedef OnAddComponentCallback = Function(
+  int entityId,
+  int componentTypeId,
+  ByteBufferReader buffer,
+);
+
+typedef OnUpdateComponentCallback = Function(
+  int entityId,
+  int componentTypeId,
+  ByteBufferReader buffer,
+);
 
 class ByteBufferWriter {
   final ByteData _byteData;
@@ -154,7 +184,8 @@ extension IdWorld on World {
   void netRegisterComponent<T extends Component<V>, V>(
     ComponentBuilder<T> builder,
     int id,
-    NetBuilder Function(Entity) netBuilder,
+    // NetBuilder Function(Entity) netBuilder,
+    NetBuilder2 netBuilder,
   ) {
     registerComponent(builder);
 
@@ -162,4 +193,15 @@ extension IdWorld on World {
   }
 }
 
-final mappings = TwoWayMap<int, NetBuilder Function(Entity)>();
+// final mappings = TwoWayMap<int, NetBuilder Function(Entity)>();
+final mappings = TwoWayMap<int, NetBuilder2>();
+
+class NetBuilder2<T> {
+  final void Function(Entity) add;
+  final T Function(Entity) get;
+
+  const NetBuilder2({
+    required this.add,
+    required this.get,
+  });
+}

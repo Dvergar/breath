@@ -38,6 +38,12 @@ class BreathOxygenServer extends BreathOxygenBase {
     server.send(bytes);
   }
 
+  void updateComponent(Entity entity, SerializableComponent component) {
+    final bytes = messager.updateComponentToBytes(entity.id!, component);
+
+    server.send(bytes);
+  }
+
   void sendWorldTo(WebSocketChannel channel) {
     for (final entry in entities.entries) {
       server.sendTo(
@@ -76,5 +82,13 @@ extension NetworkWorld on World {
     premadeEntity.make(entity);
 
     return entity;
+  }
+}
+
+extension NetworkComponent on SerializableComponent {
+  /// Server-only: will mark & send a component update.
+  void markNetUpdate(Entity entity) {
+    print('marknetupdate');
+    BreathOxygenServer.instance.updateComponent(entity, this);
   }
 }
