@@ -6,7 +6,7 @@ A set of tools for **network game development** in dart/flutter.
 - Targets flutter/web for the client
 - Targets dart/desktop for the - authoritative - server
 
-Glueing websockets, Flame & Oxygen.
+Glueing websockets, [Flame](https://github.com/flame-engine/flame) & [Oxygen](https://github.com/flame-engine/oxygen).
 
 ## Tasks
 
