@@ -1,17 +1,20 @@
+import 'dart:typed_data';
+
 import 'package:breath/breath.dart';
 import 'package:breath/breath_client.dart';
 import 'package:breath/src/breath_oxygen/breath_oxygen_base.dart';
 
 class BreathOxygenClient extends BreathOxygenBase {
+  final _client = Client();
+
   @override
   Future<void> start() async {
     final messager = Messager();
 
-    final client = Client();
-    client.init();
-    client.onOpen.listen((event) {});
+    _client.init();
+    _client.onOpen.listen((event) {});
 
-    client.onMessage.listen((message) {
+    _client.onMessage.listen((message) {
       messager.fromBytes(
         buffer: message,
         onCreateEntity: () {
@@ -49,5 +52,9 @@ class BreathOxygenClient extends BreathOxygenBase {
         },
       );
     });
+  }
+
+  void send(ByteData buffer) {
+    _client.send(buffer.buffer);
   }
 }
