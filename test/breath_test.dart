@@ -27,14 +27,14 @@ void main() {
 
       test('it returns passed values for all booleans', () {
         final writer = ByteBufferWriter(byteData);
-        writer.writeBooleans(true, true, true, true, true, true, true, true);
+        writer.writeBooleans(false, true, true, true, true, true, true, true);
 
         final reader = ByteBufferReader(byteData);
         final booleans = reader.getBooleans();
 
         expect(
           booleans,
-          (true, true, true, true, true, true, true, true),
+          (false, true, true, true, true, true, true, true),
         );
       });
     });
