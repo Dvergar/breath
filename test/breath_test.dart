@@ -1,11 +1,42 @@
+import 'dart:typed_data';
+
+import 'package:breath/breath.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('A group of tests', () {
-    setUp(() {
-      // Additional setup goes here.
-    });
+  group('Message', () {
+    group('Booleans', () {
+      late ByteData byteData;
 
-    test('First Test', () {});
+      setUp(() {
+        byteData = ByteData(1024);
+      });
+
+      test('it returns passed & default values', () {
+        final writer = ByteBufferWriter(byteData);
+        writer.writeBooleans(true);
+
+        final reader = ByteBufferReader(byteData);
+        final booleans = reader.getBooleans();
+
+        expect(
+          booleans,
+          (true, false, false, false, false, false, false, false),
+        );
+      });
+
+      test('it returns passed values for all booleans', () {
+        final writer = ByteBufferWriter(byteData);
+        writer.writeBooleans(true, true, true, true, true, true, true, true);
+
+        final reader = ByteBufferReader(byteData);
+        final booleans = reader.getBooleans();
+
+        expect(
+          booleans,
+          (true, true, true, true, true, true, true, true),
+        );
+      });
+    });
   });
 }

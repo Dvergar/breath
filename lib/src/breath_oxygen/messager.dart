@@ -118,6 +118,28 @@ class ByteBufferWriter {
     _byteData.setInt32(_offset, value);
     _offset += 4;
   }
+
+  void writeBooleans(
+    bool bool1, [
+    bool bool2 = false,
+    bool bool3 = false,
+    bool bool4 = false,
+    bool bool5 = false,
+    bool bool6 = false,
+    bool bool7 = false,
+    bool bool8 = false,
+  ]) {
+    final packedValue = (bool1 ? 1 : 0) << 7 |
+        (bool2 ? 1 : 0) << 6 |
+        (bool3 ? 1 : 0) << 5 |
+        (bool4 ? 1 : 0) << 4 |
+        (bool5 ? 1 : 0) << 3 |
+        (bool6 ? 1 : 0) << 2 |
+        (bool7 ? 1 : 0) << 1 |
+        (bool8 ? 1 : 0);
+
+    writeInt8(packedValue);
+  }
 }
 
 class ByteBufferReader {
@@ -146,6 +168,20 @@ class ByteBufferReader {
     _bytesOffset += 4;
     _elementOffset += 1;
     return value;
+  }
+
+  (bool, bool, bool, bool, bool, bool, bool, bool) getBooleans() {
+    final packedValue = readInt8();
+    return (
+      (packedValue & (1 << 7)) != 0,
+      (packedValue & (1 << 6)) != 0,
+      (packedValue & (1 << 5)) != 0,
+      (packedValue & (1 << 4)) != 0,
+      (packedValue & (1 << 3)) != 0,
+      (packedValue & (1 << 2)) != 0,
+      (packedValue & (1 << 1)) != 0,
+      (packedValue & (1 << 0)) != 0,
+    );
   }
 
   bool get hasBytesToRead => _elementOffset < _byteData.elementSizeInBytes;
