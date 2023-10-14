@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:breath/src/breath_oxygen/serializable_component.dart';
 import 'package:oxygen/oxygen.dart';
 
 enum MessageType {
@@ -185,13 +186,6 @@ class ByteBufferReader {
   }
 
   bool get hasBytesToRead => _elementOffset < _byteData.elementSizeInBytes;
-}
-
-abstract class SerializableComponent<T> extends Component<T> {
-  /// Component type id which should match [NetBuilder.typeId].
-  late final int typeId;
-  void fromBytes(ByteBufferReader buffer);
-  void toBytes(ByteBufferWriter buffer);
 }
 
 class TwoWayMap<K, V> {

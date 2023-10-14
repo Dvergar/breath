@@ -6,6 +6,4 @@ abstract class BreathOxygenBase {
   final messager = Messager();
   final Map<int, SerializableComponent> components = {};
   final Map<int, Entity> entities = {};
-
-  Future<void> start();
 }

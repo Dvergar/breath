@@ -10,10 +10,9 @@ class BreathOxygenServer extends BreathOxygenBase {
   final server = Server();
   static late final BreathOxygenServer instance;
 
-  @override
-  Future<void> start() async {
+  Future<void> serve() async {
     instance = this;
-    await server.init();
+    await server.serve();
 
     // On new connection, sends the world to client
     server.onOpen.listen((channel) {

@@ -21,8 +21,7 @@ class Server implements IWebSocket {
 
   final _channels = <WebSocketChannel>[];
 
-  @override
-  init() async {
+  Future<void> serve() async {
     final handler = webSocketHandler((WebSocketChannel webSocket) {
       print('New connection');
       _onOpenController.add(webSocket);

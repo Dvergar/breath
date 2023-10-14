@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:html';
 import 'dart:typed_data';
 
@@ -5,36 +6,46 @@ import 'package:breath/src/websocket/i_websocket.dart';
 import 'package:web_socket_channel/html.dart';
 
 class Client implements IWebSocket {
-  final _socket = WebSocket('ws://localhost:8080')
-    ..binaryType = BinaryType.list.value;
+  late WebSocket _socket;
+
+  final _onMessageController = StreamController<dynamic>.broadcast();
+  final _onOpenController = StreamController<Event>.broadcast();
 
   @override
-  Stream get onMessage => _socket.onMessage.map((event) => event.data);
+  Stream get onMessage => _onMessageController.stream;
   @override
-  Stream<Event> get onOpen => _socket.onOpen;
+  Stream<Event> get onOpen => _onOpenController.stream;
 
-  @override
-  void init() async {
+  void connect() {
+    _socket = WebSocket('ws://localhost:8080')
+      ..binaryType = BinaryType.list.value;
+
     _socket.onOpen.listen(
       (event) {
-        // ignore: avoid_print
-        print('Connected to WebSocket server.');
+        print('Client: Connected');
+        _onOpenController.add(event);
       },
     );
 
     // Listen for messages from the server.
-    _socket.onMessage.listen((message) {
-      // ignore: avoid_print
-      print('Debug: Received from server: $message');
+    _socket.onMessage.listen((MessageEvent message) {
+      print('Client: Received from server: $message');
+      _onMessageController.add(message.data);
     });
 
     // Close the WebSocket connection when done.
     _socket.onClose.listen((_) {
-      // ignore: avoid_print
-      print('WebSocket connection closed.');
+      print('Client: WebSocket connection closed');
     });
+
+    _socket.onError.listen(
+      (_) {
+        print('Client: Error');
+      },
+    );
   }
 
+  // TODO sendTypedData
   @override
   void send(ByteBuffer buffer) {
     _socket.send(buffer);

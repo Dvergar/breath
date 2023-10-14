@@ -7,12 +7,13 @@ import 'package:breath/src/breath_oxygen/breath_oxygen_base.dart';
 class BreathOxygenClient extends BreathOxygenBase {
   final _client = Client();
 
-  @override
-  Future<void> start() async {
+  Future<void> connect() async {
+    print('Breath: client engine started');
     final messager = Messager();
 
-    _client.init();
-    _client.onOpen.listen((event) {});
+    _client.onOpen.listen((event) {
+      print('Breath: connected');
+    });
 
     _client.onMessage.listen((message) {
       messager.fromBytes(
@@ -52,6 +53,8 @@ class BreathOxygenClient extends BreathOxygenBase {
         },
       );
     });
+
+    _client.connect();
   }
 
   void send(ByteData buffer) {
