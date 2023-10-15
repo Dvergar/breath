@@ -25,7 +25,7 @@ class SerializableAnnotation extends ClassAnnotation {
               [
                 Method.returnsVoid(
                   (m) => m
-                    ..name = 'toBytes'
+                    ..name = 'writeBytes'
                     ..requiredParameters.add(
                       Parameter(
                         (p) => p
@@ -55,7 +55,7 @@ class SerializableAnnotation extends ClassAnnotation {
                 ),
                 Method.returnsVoid(
                   (m) => m
-                    ..name = 'fromBytes'
+                    ..name = 'readBytes'
                     ..requiredParameters.add(
                       Parameter(
                         (p) => p
