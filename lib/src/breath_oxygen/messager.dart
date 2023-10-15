@@ -171,7 +171,7 @@ class ByteBufferReader {
     return value;
   }
 
-  (bool, bool, bool, bool, bool, bool, bool, bool) getBooleans() {
+  (bool, bool, bool, bool, bool, bool, bool, bool) readBooleans() {
     final packedValue = readInt8();
     return (
       (packedValue & (1 << 7)) != 0,

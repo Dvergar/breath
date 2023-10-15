@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:breath/breath.dart';
 import 'package:breath/breath_client.dart';
 import 'package:breath/src/breath_oxygen/breath_oxygen_base.dart';

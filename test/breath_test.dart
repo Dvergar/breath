@@ -17,7 +17,7 @@ void main() {
         writer.writeBooleans(true);
 
         final reader = ByteBufferReader(byteData);
-        final booleans = reader.getBooleans();
+        final booleans = reader.readBooleans();
 
         expect(
           booleans,
@@ -30,7 +30,7 @@ void main() {
         writer.writeBooleans(false, true, true, true, true, true, true, true);
 
         final reader = ByteBufferReader(byteData);
-        final booleans = reader.getBooleans();
+        final booleans = reader.readBooleans();
 
         expect(
           booleans,
