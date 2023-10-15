@@ -1,7 +1,6 @@
 @CodeGen(runAfter: [CodeGen.addPartOfDirective])
 
 import 'package:super_annotations/super_annotations.dart';
-
 import 'package:breath/breath.dart';
 
 part 'moo_component.g.dart';
@@ -16,6 +15,4 @@ class MooComponent {
   bool pressed = false;
   @DataProtocol(DataType.int8)
   int typeId = 0;
-
-  MooComponent();
 }
