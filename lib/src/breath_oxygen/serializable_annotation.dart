@@ -37,11 +37,22 @@ class SerializableAnnotation extends ClassAnnotation {
                       [
                         for (final entry in byteMaps)
                           switch (entry.$1) {
-                            DataType.int8 => refer('buffer.writeInt8').call([
-                                refer(entry.$2.name).property('toInt').call([])
-                              ]).statement,
-                            DataType.int16 => refer('buffer.writeInt16')
-                                .call([refer(entry.$2.name)]).statement,
+                            DataType.int8 => entry.$2.type?.symbol == 'double'
+                                ? refer('buffer.writeInt8').call([
+                                    refer(entry.$2.name)
+                                        .property('toInt')
+                                        .call([])
+                                  ]).statement
+                                : refer('buffer.writeInt8')
+                                    .call([refer(entry.$2.name)]).statement,
+                            DataType.int16 => entry.$2.type?.symbol == 'double'
+                                ? refer('buffer.writeInt16').call([
+                                    refer(entry.$2.name)
+                                        .property('toInt')
+                                        .call([])
+                                  ]).statement
+                                : refer('buffer.writeInt16')
+                                    .call([refer(entry.$2.name)]).statement,
                             DataType.bool => refer('buffer.writeBooleans')
                                 .call([refer(entry.$2.name)]).statement
                           },
@@ -62,18 +73,26 @@ class SerializableAnnotation extends ClassAnnotation {
                       [
                         for (final entry in byteMaps)
                           switch (entry.$1) {
-                            DataType.int8 => refer(entry.$2.name)
-                                .assign(refer('buffer.readInt8')
-                                    .call([])
-                                    .property('toDouble')
-                                    .call([]))
-                                .statement,
-                            DataType.int16 => refer(entry.$2.name)
-                                .assign(refer('buffer.readInt16')
-                                    .call([])
-                                    .property('toDouble')
-                                    .call([]))
-                                .statement,
+                            DataType.int8 => entry.$2.type?.symbol == 'double'
+                                ? refer(entry.$2.name)
+                                    .assign(refer('buffer.readInt8')
+                                        .call([])
+                                        .property('toDouble')
+                                        .call([]))
+                                    .statement
+                                : refer(entry.$2.name)
+                                    .assign(refer('buffer.readInt8').call([]))
+                                    .statement,
+                            DataType.int16 => entry.$2.type?.symbol == 'double'
+                                ? refer(entry.$2.name)
+                                    .assign(refer('buffer.readInt16')
+                                        .call([])
+                                        .property('toDouble')
+                                        .call([]))
+                                    .statement
+                                : refer(entry.$2.name)
+                                    .assign(refer('buffer.readInt16').call([]))
+                                    .statement,
                             DataType.bool => refer(entry.$2.name)
                                 .assign(refer('buffer.readBooleans')
                                     .call([]).property(r'$1'))
