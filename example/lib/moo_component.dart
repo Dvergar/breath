@@ -6,7 +6,7 @@ import 'package:breath/breath.dart';
 part 'moo_component.g.dart';
 
 @SerializableAnnotation()
-class MooComponent {
+class _MooComponent<String> extends SerializableComponent<int> {
   @DataProtocol(DataType.int16)
   double x = 0.0;
   @DataProtocol(DataType.int16)
@@ -17,4 +17,10 @@ class MooComponent {
   bool pressed = false;
   @DataProtocol(DataType.int8)
   int typeId = 0;
+
+  @override
+  void init([int? data]) {}
+
+  @override
+  void reset() {}
 }

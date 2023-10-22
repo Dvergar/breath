@@ -27,27 +27,28 @@ class BreathOxygenClient extends BreathOxygenBase {
           int componentTypeId,
           ByteBufferReader buffer,
         ) {
-          print('Breath: add component');
+          print('Breath: add component $componentTypeId');
 
           final entity = entities[entityId]!;
-          final builder = mappings.getValue(componentTypeId);
+          final builder = mappings[componentTypeId]!;
           builder.add(entity);
           final component = builder.get(entity);
 
-          component.fromBytes(buffer);
+          component.readBytes(buffer);
         },
         onUpdateComponent: (
           int entityId,
           int componentTypeId,
           ByteBufferReader buffer,
         ) {
-          print('Breath: update component');
+          // TODO: Put behind a debug flag
+          // print('Breath: update component');
 
           final entity = entities[entityId]!;
-          final builder = mappings.getValue(componentTypeId);
+          final builder = mappings[componentTypeId]!;
           final component = builder.get(entity);
 
-          component.fromBytes(buffer);
+          component.readBytes(buffer);
         },
       );
     });

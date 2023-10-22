@@ -1,6 +1,4 @@
-import 'dart:typed_data';
-
-import 'package:breath/src/breath_oxygen/serializable_component.dart';
+import 'package:breath/breath.dart';
 import 'package:oxygen/oxygen.dart';
 
 enum MessageType {
@@ -38,7 +36,7 @@ class Messager {
     writer.writeInt8(MessageType.addComponent.index);
     writer.writeInt32(entityId);
     writer.writeInt32(component.typeId);
-    component.toBytes(writer);
+    component.writeBytes(writer);
 
     return byteBuffer.buffer;
   }
@@ -52,7 +50,7 @@ class Messager {
     writer.writeInt8(MessageType.updateComponent.index);
     writer.writeInt32(entityId);
     writer.writeInt32(component.typeId);
-    component.toBytes(writer);
+    component.writeBytes(writer);
 
     return byteBuffer.buffer;
   }
@@ -214,18 +212,17 @@ extension IdWorld on World {
   ) {
     registerComponent(builder);
 
-    mappings.add(netBuilder.typeId, netBuilder);
+    mappings[netBuilder.typeId] = netBuilder;
   }
 }
 
-// final mappings = TwoWayMap<int, NetBuilder Function(Entity)>();
-final mappings = TwoWayMap<int, NetBuilder>();
+final mappings = <int, NetBuilder>{};
 
 class NetBuilder<T> {
   /// Component type id which should match [SerializableComponent.typeId].
   final int typeId;
   final void Function(Entity) add;
-  final T Function(Entity) get;
+  final SerializableComponent Function(Entity) get;
 
   const NetBuilder({
     required this.typeId,

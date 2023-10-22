@@ -29,7 +29,8 @@ class Client implements IWebSocket {
 
     // Listen for messages from the server.
     _socket.onMessage.listen((MessageEvent message) {
-      print('Client: Received from server: $message');
+      // TODO: Put behind a debug flag
+      // print('Client: Received from server: $message');
       _onMessageController.add(message.data);
     });
 

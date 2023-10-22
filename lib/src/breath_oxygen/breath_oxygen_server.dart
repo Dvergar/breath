@@ -10,6 +10,10 @@ class BreathOxygenServer extends BreathOxygenBase {
   final server = Server();
   static late final BreathOxygenServer instance;
 
+  BreathOxygenServer() {
+    isServer = true;
+  }
+
   Future<void> serve() async {
     instance = this;
     await server.serve();
@@ -22,7 +26,7 @@ class BreathOxygenServer extends BreathOxygenBase {
   }
 
   void addComponent(int entityId, SerializableComponent component) {
-    components[entityId] = component;
+    components[entityId]!.add(component);
 
     final bytes = messager.addComponentToBytes(entityId, component);
 
@@ -31,6 +35,7 @@ class BreathOxygenServer extends BreathOxygenBase {
 
   void createEntity(Entity entity) {
     entities[entity.id!] = entity;
+    components[entity.id!] = [];
 
     final bytes = messager.createEntityToBytes(entity.id!);
 
@@ -44,50 +49,42 @@ class BreathOxygenServer extends BreathOxygenBase {
   }
 
   void sendWorldTo(WebSocketChannel channel) {
-    for (final entry in entities.entries) {
-      server.sendTo(
-        channel,
-        messager.createEntityToBytes(entry.key),
-      );
-    }
+    // TODO reconsider data structures
+    // for (final entry in entities.entries) {
+    //   server.sendTo(
+    //     channel,
+    //     messager.createEntityToBytes(entry.key),
+    //   );
+    // }
 
     for (final entry in components.entries) {
+      final entityId = entry.key;
+
+      print('send world add entity');
       server.sendTo(
         channel,
-        messager.addComponentToBytes(entry.key, entry.value),
+        messager.createEntityToBytes(entityId),
       );
+
+      final components = entry.value;
+
+      for (final component in components) {
+        print('send world add component ${component.typeId}');
+
+        server.sendTo(
+          channel,
+          messager.addComponentToBytes(entityId, component),
+        );
+      }
     }
   }
 }
 
 extension NetworkEntity on Entity {
-  netAdd<T extends SerializableComponent<V>, V>([V? data]) {
+  void netAdd<T extends SerializableComponent<V>, V>([V? data]) {
     add<T, V>(data);
     final component = get<T>()!;
+    print('netadd $T');
     BreathOxygenServer.instance.addComponent(id!, component);
-  }
-}
-
-extension NetworkWorld on World {
-  Entity createNetworkEntity() {
-    final entity = createEntity();
-    BreathOxygenServer.instance.createEntity(entity);
-
-    return entity;
-  }
-
-  Entity createNetworkPremadeEntity(PremadeEntity premadeEntity) {
-    final entity = createNetworkEntity();
-    premadeEntity.make(entity);
-
-    return entity;
-  }
-}
-
-extension NetworkComponent on SerializableComponent {
-  /// Server-only: will mark & send a component update.
-  void markNetUpdate(Entity entity) {
-    print('marknetupdate');
-    BreathOxygenServer.instance.updateComponent(entity, this);
   }
 }
