@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:typed_data';
 
+import 'package:breath/breath.dart';
 import 'package:breath/src/websocket/i_websocket.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
@@ -23,15 +23,20 @@ class Server implements IWebSocket {
 
   Future<void> serve() async {
     final handler = webSocketHandler((WebSocketChannel webSocket) {
-      print('New connection');
+      logger.i('[Server] New connection > ${webSocket.hashCode}');
+
       _onOpenController.add(webSocket);
 
       _channels.add(webSocket);
 
       webSocket.stream.listen(
-        (message) => _onMessageController.add((webSocket, message)),
+        (message) {
+          logger.d('[Server] Received from client: $message');
+
+          _onMessageController.add((webSocket, message));
+        },
         onDone: () {
-          print('Disconnection');
+          logger.i('[Server] Disconnection > ${webSocket.hashCode}');
 
           _channels.remove(webSocket);
         },
@@ -45,8 +50,7 @@ class Server implements IWebSocket {
     // Create an HTTP server.
     final server = await io.serve(pipeline, 'localhost', 8080);
 
-    print(
-        'WebSocket server is listening on ${server.address.host}:${server.port}');
+    logger.i('[Server] Listening on ${server.address.host}:${server.port}');
   }
 
   @override

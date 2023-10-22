@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:html';
 import 'dart:typed_data';
 
+import 'package:breath/breath.dart';
 import 'package:breath/src/websocket/i_websocket.dart';
 import 'package:web_socket_channel/html.dart';
 
@@ -22,26 +23,27 @@ class Client implements IWebSocket {
 
     _socket.onOpen.listen(
       (event) {
-        print('Client: Connected');
+        logger.i('[Client] Connected');
+
         _onOpenController.add(event);
       },
     );
 
     // Listen for messages from the server.
     _socket.onMessage.listen((MessageEvent message) {
-      // TODO: Put behind a debug flag
-      // print('Client: Received from server: $message');
+      logger.d('[Client] Received from server: $message');
+
       _onMessageController.add(message.data);
     });
 
     // Close the WebSocket connection when done.
     _socket.onClose.listen((_) {
-      print('Client: WebSocket connection closed');
+      logger.i('[Client] Disconnected');
     });
 
     _socket.onError.listen(
       (_) {
-        print('Client: Error');
+        logger.e('[Client] Error');
       },
     );
   }

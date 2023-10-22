@@ -15,12 +15,14 @@ class BreathOxygenServer extends BreathOxygenBase {
   }
 
   Future<void> serve() async {
+    logger.i('[Breath] Server engine started');
+
     instance = this;
     await server.serve();
 
     // On new connection, sends the world to client
     server.onOpen.listen((channel) {
-      print('Breath: player connected');
+      logger.i('[Breath] Player connected');
       sendWorldTo(channel);
     });
   }
@@ -60,7 +62,6 @@ class BreathOxygenServer extends BreathOxygenBase {
     for (final entry in components.entries) {
       final entityId = entry.key;
 
-      print('send world add entity');
       server.sendTo(
         channel,
         messager.createEntityToBytes(entityId),
@@ -69,11 +70,13 @@ class BreathOxygenServer extends BreathOxygenBase {
       final components = entry.value;
 
       for (final component in components) {
-        print('send world add component ${component.typeId}');
-
         server.sendTo(
           channel,
           messager.addComponentToBytes(entityId, component),
+        );
+
+        logger.i(
+          '[Breath] Send world to $entityId w/ component: ${component.runtimeType}',
         );
       }
     }
@@ -84,7 +87,6 @@ extension NetworkEntity on Entity {
   void netAdd<T extends SerializableComponent<V>, V>([V? data]) {
     add<T, V>(data);
     final component = get<T>()!;
-    print('netadd $T');
     BreathOxygenServer.instance.addComponent(id!, component);
   }
 }
