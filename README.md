@@ -10,6 +10,7 @@ Glueing websockets, [Flame](https://github.com/flame-engine/flame) & [Oxygen](ht
 
 ## Tasks
 
+- Simple game example
 - Frame rewinder
 - Fixed-step loop + helpers
 - Tweening helpers (Dead reckoning, smoothing)
