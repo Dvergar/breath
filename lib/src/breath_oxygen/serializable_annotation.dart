@@ -40,7 +40,6 @@ class SerializableAnnotation extends ClassAnnotation {
 
     final typeParameter = (target.extend! as TypeReference).types.first;
 
-    // TODO remove unnecessary type parameters
     final className = target.name.substring(1);
 
     output.body.add(Class((e) => e
@@ -51,8 +50,8 @@ class SerializableAnnotation extends ClassAnnotation {
           (f) => f
             ..name = 'builder'
             ..static = true
-            ..type = refer('NetBuilder<$className>')
-            ..assignment = refer('NetBuilder<$className>').newInstance([], {
+            ..type = refer('NetBuilder')
+            ..assignment = refer('NetBuilder').newInstance([], {
               'typeId': literalNum(typeId),
               'add': Method(
                 (b) => b
