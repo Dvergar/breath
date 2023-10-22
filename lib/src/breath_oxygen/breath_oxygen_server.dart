@@ -36,7 +36,6 @@ class BreathOxygenServer extends BreathOxygenBase {
   }
 
   void createEntity(Entity entity) {
-    entities[entity.id!] = entity;
     components[entity.id!] = [];
 
     final bytes = messager.createEntityToBytes(entity.id!);
@@ -51,14 +50,6 @@ class BreathOxygenServer extends BreathOxygenBase {
   }
 
   void sendWorldTo(WebSocketChannel channel) {
-    // TODO reconsider data structures
-    // for (final entry in entities.entries) {
-    //   server.sendTo(
-    //     channel,
-    //     messager.createEntityToBytes(entry.key),
-    //   );
-    // }
-
     for (final entry in components.entries) {
       final entityId = entry.key;
 
