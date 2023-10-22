@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:html';
-import 'dart:typed_data';
 
 import 'package:breath/breath.dart';
 import 'package:breath/src/websocket/i_websocket.dart';
